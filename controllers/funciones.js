@@ -73,7 +73,7 @@ async function getCotizacionDolarDivisaBNA(req, res) {
         res.send("No se encontro ninguna cotizacion")
     }
   } catch (error) {
-    res.status(404).send("Not found"); 
+    res.status(404).send(error); 
   } 
   
 };
