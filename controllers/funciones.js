@@ -48,11 +48,17 @@ function getCotizacionDolar(req, res, query){
 }
 async function getCotizacionDolarDivisaBNA(req, res) {
   try {
+    console.log('launch browser')
     const browser = await puppeteer.launch({headless: true});
+    console.log('browser.newPage')
     const page = await browser.newPage();
+    console.log('go to page')
     await page.goto(pageBNA);
+    console.log('evaluate page')
     const ret = await page.evaluate(()=>{
+      console.log('into the callback')
         const elements = document.getElementsByTagName('tbody')[0]
+        console.log(elements)
         let obj;
         for(let element of elements.rows){
           if(element.cells[0].innerText.includes('Dolar U.S.A')){
@@ -66,6 +72,7 @@ async function getCotizacionDolarDivisaBNA(req, res) {
         }
         return obj;
       })
+      console.log('close browser')
     await browser.close()
     if(ret){
         res.send('{"v":"'+ret.venta+'"}')
