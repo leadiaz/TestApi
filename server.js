@@ -6,11 +6,7 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 var logger = require('morgan');
 process.env.PORT = process.env.PORT || 3000;
-const options = {
-    key: fs.readFileSync(__dirname + '/crt/finneg.com.key'),
-    cert: fs.readFileSync(__dirname + '/crt/STAR_finneg_com.crt'),
-    passphrase: 'platon1401'
-}
+//
 app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 // ===================================
@@ -29,10 +25,10 @@ app.use(bodyParser.raw());
 // Configuración global de rutas
 // ===================================
 app.use(require('./routes/index'));
-/*app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, () => {
      console.log('Escuchando puerto: ', process.env.PORT);
- });*/
-https.createServer(options, app).listen(process.env.PORT, () => {
+ });
+/*https.createServer(options, app).listen(process.env.PORT, () => {
     console.log('Escuchando puerto: ', process.env.PORT);
-});
+});*/
 module.exports = app;
