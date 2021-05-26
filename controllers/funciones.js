@@ -49,7 +49,7 @@ function getCotizacionDolar(req, res, query){
 async function getCotizacionDolarDivisaBNA(req, res) {
   try {
     console.log('launch browser')
-    const browser = await puppeteer.launch({headless: true});
+    const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
     console.log('browser.newPage')
     const page = await browser.newPage();
     console.log('go to page')
