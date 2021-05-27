@@ -2,10 +2,12 @@ var express = require('express');
 var request = require('request');
 var https = require('https');
 var codigos = require('../constants/codigos');
-const puppeteer = require('puppeteer');
+const jsdom = require('jsdom')
+const axios = require('axios');
 
 const urlDolar = 'https://api-dolar-argentina.herokuapp.com/api/';
 const pageBNA = 'https://www.bna.com.ar/Cotizador/MonedasHistorico';
+const dom = new jsdom.JSDOM("")
 
 var tokenBCRA = '';
 var cotizacionesDolar;
@@ -47,41 +49,30 @@ function getCotizacionDolar(req, res, query){
 
 }
 async function getCotizacionDolarDivisaBNA(req, res) {
-  try {
-    console.log('launch browser')
-    const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox',"--disable-setuid-sandbox"]});
-    console.log('browser.newPage')
-    const page = await browser.newPage();
-    console.log('go to page')
-    await page.goto(pageBNA);
-    console.log('evaluate page')
-    const ret = await page.evaluate(()=>{
-      console.log('into the callback')
-        const elements = document.getElementsByTagName('tbody')[0]
-        console.log(elements)
-        let obj;
+  axios.get(pageBNA).then(function(resp){
+    if(resp.status ==200){
+      let html = new jsdom.JSDOM(resp.data)
+      let elements = html.window.document.getElementsByTagName('tbody')[0];
+      let obj;
         for(let element of elements.rows){
-          if(element.cells[0].innerText.includes('Dolar U.S.A')){
+          if(element.cells[0].innerHTML.includes('Dolar U.S.A')){
             obj ={
-                moneda: element.cells[0].innerText,
-                compra: element.cells[1].innerText,
-                venta: element.cells[2].innerText
+                moneda: element.cells[0].innerHTML,
+                compra: element.cells[1].innerHTML,
+                venta: element.cells[2].innerHTML
             };
             break;
           }
         }
-        return obj;
-      })
-      console.log('close browser')
-    await browser.close()
-    if(ret){
-        res.send('{"v":"'+ret.venta+'"}')
-    }else{
-        res.send("No se encontro ninguna cotizacion")
+      if(obj){
+        res.send('{"v":"'+obj.venta+'"}')
+      }else{
+        res.status(204).json({error:"No Content"})
+      }
     }
-  } catch (error) {
-    res.status(404).send(error.message); 
-  } 
+  }).catch(function (err){
+    res.status(404).json({error: err.message})
+  })
   
 };
 
